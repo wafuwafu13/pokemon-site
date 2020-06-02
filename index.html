@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>ポケモン計算</title>
+        <link rel="stylesheet" href="styles.css">
+    </head>
+
+    <body>
+
+        <h1 class="title">ポケモン計算</h1>
+
+        <div id="pokemonList">
+            <div class="pokemon" id="pokemon-1">
+                <img class="pokemon-img">　
+                <p class="pokemon-weight"></p>　
+            </div>
+            <div class="pokemon" id="pokemon-2">
+                <img class="pokemon-img">　
+                <p class="pokemon-weight"></p>　
+            </div>
+        </div>
+
+        <div id="action-wrapper">
+            <a class="action action-btn" onclick="consultarPokemones()">つぎへ</a>
+            <input class="action" id="answer-input" type="number">
+            <a class="action action-btn" onclick="checkResult()">答える</a>
+        </div>
+    
+        <script>
+    
+            let lists = document.getElementById("pokemonList")
+
+            consultarPokemones()
+
+            function createRandomNum(){
+                let min = 1
+                let max = 800
+                return Math.floor(Math.random() * (max + 1 - min)) + min
+            }
+
+            function resetState(){
+                document.getElementsByClassName("pokemon-img")[0].classList.remove("correct")
+                document.getElementsByClassName("pokemon-img")[1].classList.remove("correct")
+                document.getElementsByClassName("action-btn")[1].classList.remove("disabled")
+                document.getElementById("answer-input").value = ""
+            }
+
+            function consultarPokemones(){
+                resetState()
+                let pokeId1 = createRandomNum()
+                let pokeId2 = createRandomNum()
+                consultarPokemon(pokeId1, 1)
+                consultarPokemon(pokeId2, 2)
+            }
+            
+            function consultarPokemon(pokeId, num){
+                fetch(`https://pokeapi.co/api/v2/pokemon/${pokeId}`)
+                .then(function (response){
+                    response.json()
+                    .then(function(pokemon){
+                      createPokemon(pokemon, num)
+                    })
+                })
+            }
+            
+            function createPokemon(pokemon, num){
+                let item = lists.querySelector(`#pokemon-${num}`)
+                let images = item.getElementsByTagName("img")[0] 
+                images.setAttribute("src",pokemon.sprites.front_default)
+                let weight = item.getElementsByTagName("p")[0]
+                weight.textContent = pokemon.weight
+            }
+
+            function checkResult(){
+                let ansValue = document.getElementById("answer-input").value
+                let weight = document.getElementsByClassName("pokemon-weight")
+                let correctAns = Number(weight[0].textContent) + Number(weight[1].textContent)
+                if (ansValue == correctAns){
+                    document.getElementsByClassName("pokemon-img")[0].classList.add("correct")
+                    document.getElementsByClassName("pokemon-img")[1].classList.add("correct")
+                    document.getElementsByClassName("action-btn")[1].classList.add("disabled")
+                }
+            }
+
+        </script>
+
+    </body>
+</html>
